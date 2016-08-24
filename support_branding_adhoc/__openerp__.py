@@ -31,6 +31,7 @@ Set parameter for adhoc support branding
     """,
     'author':  'ADHOC SA',
     'website': 'www.adhoc.com.ar',
+    'license': 'AGPL-3',
     'images': [
     ],
     'depends': [
@@ -43,7 +44,7 @@ Set parameter for adhoc support branding
     ],
     'test': [
     ],
-    'installable': True,
+    'installable': False,
     'auto_install': False,
     'application': False,
 }

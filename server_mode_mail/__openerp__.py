@@ -23,6 +23,7 @@
     'version': '9.0.1.0.0',
     "author": "ADHOC SA",
     "website": "www.adhoc.com.ar",
+    'license': 'AGPL-3',
     "category": "GenericModules",
     'sequence': 10,
     'description': """
@@ -34,12 +35,12 @@ Disable send mail on mail model on develop or test environments
     'depends': [
         "server_mode",
         "mail",
-        ],
+    ],
     'data': [
     ],
     'demo': [],
     'test': [],
-    'installable': True,
+    'installable': False,
     'auto_install': True,
     'application': False,
     'qweb': [

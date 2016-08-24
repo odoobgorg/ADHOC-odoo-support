@@ -23,6 +23,7 @@
     'version': '9.0.1.0.0',
     "author": "ADHOC SA",
     "website": "www.adhoc.com.ar",
+    'license': 'AGPL-3',
     "category": "GenericModules",
     'sequence': 10,
     'description': """
@@ -40,7 +41,7 @@ on server config file
     ],
     'demo': [],
     'test': [],
-    'installable': True,
+    'installable': False,
     'auto_install': True,
     'application': False,
     'qweb': [
