@@ -180,10 +180,10 @@ class ir_module_module(models.Model):
             return True
 
         for module in modules_list:
-            info = modules.module.load_information_from_description_file(
+            file_info = modules.module.load_information_from_description_file(
                 module)
-            if info and info['installable']:
-                packages.append((module, info))
+            if file_info and file_info['installable']:
+                packages.append((module, file_info))
             else:
                 not_installable.append(module)
 
@@ -227,30 +227,6 @@ class ir_module_module(models.Model):
         }
 
 # methods that not apply inemdiatlelly
-
-    @api.multi
-    def button_set_to_install(self):
-        """
-        Boton que devuelve wizar di hay dependencias y si no los pone a
-        instalar.
-        Ademas usa el _set_to_install en vez de button_install
-        """
-        # self.ensure_one()
-        deps = self.mapped('dependencies_id.depend_id')
-        uninstalled_deps = deps.filtered(lambda x: x.state == 'uninstalled')
-        if uninstalled_deps:
-            action = self.env['ir.model.data'].xmlid_to_object(
-                'adhoc_modules.action_base_module_pre_install')
-
-            if not action:
-                return False
-            res = action.read()[0]
-            res['context'] = {
-                'default_dependency_ids': uninstalled_deps.ids,
-                'default_module_id': self.id,
-            }
-            return res
-        return self._set_to_install()
 
     @api.multi
     def _set_to_install(self):
@@ -312,6 +288,5 @@ class ir_module_module(models.Model):
                     ids2 = self.search([('name', '=', dep.name)])
                     to_install.extend(ids2.id)
 
-        self.browse(to_install).button_set_to_install()
-        # super(ir_module_module, self).button_upgrade()
+        self.browse(to_install)._set_to_install()
         return True
