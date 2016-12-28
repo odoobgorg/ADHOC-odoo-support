@@ -5,7 +5,7 @@
 ##############################################################################
 from openerp import models, fields, api, _
 # from openerp import pooler
-from openerp.exceptions import Warning
+from openerp.exceptions import ValidationError
 from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -159,21 +159,21 @@ class database_tools_configuration(models.TransientModel):
         # check if urgent and update status
         overall_state = self.env['ir.module.module'].get_overall_update_state()
         update_state = overall_state['state']
-        update_detail = overall_state['detail']
+        # update_detail = overall_state['detail']
 
         error_msg = False
         if update_state == 'ok':
             error_msg = 'No need to fix db'
-        elif update_detail['init_and_conf_required']:
-            error_msg = _(
-                'You can not fix db, there are some modules with "Init and '
-                'Config". Please correct them manually. Modules %s: ') % (
-                update_detail['init_and_conf_required'])
+        # elif update_detail['init_and_conf_required']:
+        #     error_msg = _(
+        #         'You can not fix db, there are some modules with "Init and '
+        #         'Config". Please correct them manually. Modules %s: ') % (
+        #         update_detail['init_and_conf_required'])
 
         # if anything to fix, we exit
         if error_msg:
             if raise_msg:
-                raise Warning(error_msg)
+                raise ValidationError(error_msg)
             _logger.info(error_msg)
             return {'error': error_msg}
 
@@ -205,6 +205,7 @@ class database_tools_configuration(models.TransientModel):
 
         self.set_to_update_required_modules()
         self.set_to_update_optional_modules()
+        self.set_to_update_init_and_conf_required_modules()
 
         # save before re-creating cursor below on upgrade
         self._cr.commit()
@@ -251,12 +252,17 @@ class database_tools_configuration(models.TransientModel):
         _logger.info('Fixing update required modules')
         return self.update_required_modules.sudo()._set_to_upgrade()
 
+    @api.multi
+    def set_to_update_init_and_conf_required_modules(self):
+        _logger.info('Fixing update required modules')
+        return self.init_and_conf_required_modules.sudo()._set_to_upgrade()
+
     @api.model
     def backup_db(self):
         self_database = self.env['db.database'].search(
             [('type', '=', 'self')], limit=1)
         if not self_database:
-            raise Warning(_('Not Self Database Found'))
+            raise ValidationError(_('Not Self Database Found'))
         now = datetime.now()
         backup_name = 'backup_for_fix_db_%s.zip' % (
             now.strftime('%Y%m%d_%H%M%S'))

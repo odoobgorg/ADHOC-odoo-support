@@ -4,7 +4,7 @@
 # directory
 ##############################################################################
 from openerp import models, api
-from openerp.exceptions import Warning
+from openerp.exceptions import ValidationError
 from openerp.addons.server_mode.mode import get_mode
 import openerp.release as release
 import logging
@@ -49,7 +49,7 @@ class Contract(models.Model):
             "Updating Updating ADHOC Modules Data For Contract %s" % self.name)
         adhoc_server_module = 'adhoc_modules_server'
         if not self.check_modules_installed([adhoc_server_module]):
-            raise Warning((
+            raise ValidationError((
                 'Can not sync modules data because module "%s" is not '
                 'installed on support provider database'))
         client = self.get_connection()
@@ -98,6 +98,14 @@ class Contract(models.Model):
             # hacemos el commit para que no de error adhoc contra adhoc
             self._cr.commit()
             if local_record:
+                # we dont deactivate categories that are being tryind if
+                # server_mode is not production
+                if (
+                        'contracted_product' in remote_data and
+                        not remote_data.get('contracted_product') and
+                        get_mode() and
+                        local_record.contracted_product == 'try_not_prod'):
+                    remote_data.pop('contracted_product')
                 local_record.write(remote_data)
             else:
                 # local_record.create(remote_data)
@@ -119,6 +127,7 @@ class Contract(models.Model):
             'sequence',
             'visibility_obs',
             'technically_critical',
+            'incompatible_modules',
         ]
         local_model = self.env['ir.module.module']
         remote_model = client.model('adhoc.module.module')

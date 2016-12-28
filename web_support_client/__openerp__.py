@@ -20,7 +20,7 @@
 ##############################################################################
 {
     'name': 'Web Support',
-    'version': '9.0.1.0.0',
+    'version': '9.0.1.1.0',
     'category': 'Support',
     'sequence': 14,
     'summary': '',
@@ -37,7 +37,8 @@ It adds a menu under configuration where you can set up contracts (or contracts
     'images': [
     ],
     'depends': [
-        'base',
+        'server_mode',
+        'auth_signup',
     ],
     'external_dependencies': {
         'python': ['erppeek']
@@ -46,6 +47,7 @@ It adds a menu under configuration where you can set up contracts (or contracts
         'views/support_view.xml',
         'views/support_chat.xml',
         'views/res_users.xml',
+        'data/data.xml',
         'security/ir.model.access.csv',
     ],
     'qweb': [
